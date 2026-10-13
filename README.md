@@ -19,7 +19,7 @@ Node/AI/local_agent/local_txt/api_key.txt
 
 ## 三、怎么保存
 
-- **平时不用管**：画布改动自动存在浏览器里，关页面再开都在
+- **平时不用管**：画布改动自动存在浏览器里，关页面再开都在。这个不好说，导出jason前走的浏览器缓存，开个无痕清理缓存之类的可能直接没了，建议导出。
 - **想存成文件备份**：点侧边栏「📁 导出文件夹」→ 选一个文件夹。之后所有改动会实时保存到那个文件夹里的 `canvas_nodes.json`，换电脑拷这个文件夹就行
 - 也可以手动导出：菜单里「导出 JSON」会下载一个 json 文件
 
@@ -80,7 +80,7 @@ Paste your DeepSeek API Key into it, save, then restart the AI console window.
 
 ## 3. How to save
 
-- **Normally you don't need to do anything**: changes are auto-saved in the browser and survive page reloads
+- **Normally you don't need to do anything**: changes are auto-saved in the browser and survive page reloads.It's hard to say. The browser cache you left before exporting Jason may be gone if you open a traceless cache cleanup or something like that. It is recommended to export it.
 - **To back up as files**: click 「📁 导出文件夹」 in the sidebar → pick a folder. All changes will be saved in real time to `canvas_nodes.json` inside that folder — copy the whole folder to migrate
 - You can also manually export: 「导出 JSON」 downloads a json file
 
