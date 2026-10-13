@@ -1,0 +1,272 @@
+/* ========== 导入文件夹面板（树形） ========== */
+.import-folder-panel {
+  margin-bottom: 6px;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #fafafa;
+}
+
+/* 顶部标题行 */
+.import-folder-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  background: #f5f5f5;
+  border-bottom: 1px solid #eee;
+}
+
+.import-folder-title {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+}
+
+/* 面板整体展开/收起按钮 */
+.import-folder-panel-toggle {
+  width: 18px;
+  height: 18px;
+  border: 1px solid #d0d0d0;
+  border-radius: 3px;
+  background: #fff;
+  color: #666;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-right: 4px;
+  transition: background .15s, color .15s, border-color .15s;
+}
+
+.import-folder-panel-toggle:hover,
+.import-folder-panel-toggle.expanded {
+  background: #e8f0fe;
+  color: #1976d2;
+  border-color: #1976d2;
+}
+
+.import-folder-add-root {
+  width: 22px;
+  height: 22px;
+  border: 1px solid #d0d0d0;
+  border-radius: 4px;
+  background: #fff;
+  color: #555;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s, color .15s, border-color .15s;
+}
+
+.import-folder-add-root:hover {
+  background: #e8f0fe;
+  color: #1976d2;
+  border-color: #1976d2;
+}
+
+/* 树容器 */
+.import-folder-tree {
+  padding: 4px 6px;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+/* 单个文件夹节点 */
+.import-folder-node {
+  font-size: 12px;
+}
+
+/* 文件夹行：[>] 📁名 [+] [×] */
+.import-folder-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 4px;
+  border-radius: 4px;
+  transition: background .15s;
+}
+
+.import-folder-row:hover {
+  background: #f0f0f0;
+}
+
+/* 当前 JSON 所属文件夹高亮（淡黄） */
+.import-folder-row.active-folder {
+  background: #fff3cd;
+}
+
+.import-folder-row.active-folder:hover {
+  background: #ffe9a8;
+}
+
+/* 小按钮通用（> / + / ×） */
+.import-folder-toggle,
+.import-folder-add-child,
+.import-folder-del {
+  width: 18px;
+  height: 18px;
+  border: 1px solid #d0d0d0;
+  border-radius: 3px;
+  background: #fff;
+  color: #666;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background .15s, color .15s, border-color .15s;
+}
+
+.import-folder-toggle:hover,
+.import-folder-add-child:hover {
+  background: #e8f0fe;
+  color: #1976d2;
+  border-color: #1976d2;
+}
+
+.import-folder-del:hover {
+  background: #ffe0e0;
+  color: #d33;
+  border-color: #d33;
+}
+
+/* [✎] 改名按钮（蓝色调，与 > / + 同尺寸） */
+.import-folder-rename {
+  width: 18px;
+  height: 18px;
+  border: 1px solid #d0d0d0;
+  border-radius: 3px;
+  background: #fff;
+  color: #666;
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background .15s, color .15s, border-color .15s;
+}
+
+.import-folder-rename:hover {
+  background: #e8f0fe;
+  color: #1976d2;
+  border-color: #1976d2;
+}
+
+/* JSON 行内的 ✎ 按钮（继承行内×样式：右侧、hover显） */
+.import-folder-item .import-folder-rename.import-folder-del-inline {
+  margin-left: 4px;
+  width: 16px;
+  height: 16px;
+  font-size: 10px;
+  opacity: .6;
+}
+
+.import-folder-item:hover .import-folder-rename.import-folder-del-inline {
+  opacity: 1;
+}
+
+/* [-] 移除显示按钮（灰色，仅根） */
+.import-folder-minus {
+  width: 18px;
+  height: 18px;
+  border: 1px solid #d0d0d0;
+  border-radius: 3px;
+  background: #fff;
+  color: #666;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background .15s, color .15s, border-color .15s;
+}
+
+.import-folder-minus:hover {
+  background: #f0f0f0;
+  color: #333;
+  border-color: #999;
+}
+
+/* JSON 行内的 × 按钮（行内右侧） */
+.import-folder-del-inline {
+  margin-left: auto;
+  width: 16px;
+  height: 16px;
+  font-size: 11px;
+  opacity: .6;
+}
+
+.import-folder-item {
+  display: flex;
+  align-items: center;
+}
+
+.import-folder-item:hover .import-folder-del-inline {
+  opacity: 1;
+}
+
+/* 文件夹名 */
+.import-folder-name {
+  flex: 1;
+  color: #444;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 展开内容区（缩进 + 虚线引导线） */
+.import-folder-content {
+  margin-left: 10px;
+  border-left: 1px dashed #ddd;
+  padding-left: 6px;
+}
+
+/* JSON 文件项 */
+.import-folder-item {
+  padding: 4px 8px;
+  font-size: 12px;
+  color: #555;
+  border-radius: 4px;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: background .15s;
+}
+
+.import-folder-item:hover {
+  background: #f0f0f0;
+}
+
+/* 当前加载的 JSON 高亮（蓝） */
+.import-folder-item.active {
+  background: #e8f0fe;
+  color: #1976d2;
+  font-weight: 600;
+}
+
+/* 空提示 */
+.import-folder-empty {
+  padding: 6px 8px;
+  font-size: 11px;
+  color: #bbb;
+  font-style: italic;
+}
