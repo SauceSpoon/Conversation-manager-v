@@ -1,0 +1,70 @@
+/* ========== 底部工具栏（玻璃胶囊） ========== */
+#bottom-toolbar {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  background: var(--surface-glass-2);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  border: 1px solid var(--border-subtle);
+  border-top-color: var(--border-light-top);
+  border-bottom-color: var(--border-dark-bottom);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-md), var(--inner-light);
+  user-select: none;
+}
+
+.toolbar-btn {
+  width: 42px;
+  height: 42px;
+  border: none;
+  border-radius: var(--radius);
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
+  color: var(--text-secondary);
+  font-size: 20px;
+}
+
+.toolbar-btn:hover {
+  background: rgba(255, 255, 255, .10);
+  color: var(--text-primary);
+}
+
+.toolbar-btn.active {
+  background: var(--accent);
+  color: var(--on-accent);
+  box-shadow: 0 0 18px rgba(244, 184, 99, .35);
+}
+
+.toolbar-btn svg {
+  width: 22px;
+  height: 22px;
+  pointer-events: none;
+}
+
+.toolbar-divider {
+  width: 1px;
+  height: 26px;
+  background: var(--border-subtle);
+}
+
+.canvas-node.dragging {
+  opacity: .85;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, .55);
+}
+
+/* 移动模式：覆盖节点内的光标 */
+body.move-mode .canvas-node,
+body.move-mode .node-content {
+  cursor: move !important;
+}

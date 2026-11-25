@@ -1,0 +1,433 @@
+#node-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* ========== 玻璃节点卡片 ========== */
+.canvas-node {
+  position: absolute;
+  top: 0;
+  left: 0;
+  min-width: 120px;
+  min-height: 160px;
+  background: var(--surface-glass);
+  backdrop-filter: blur(8px) saturate(145%);
+  -webkit-backdrop-filter: blur(8px) saturate(145%);
+  border: 1px solid var(--border-subtle);
+  border-top-color: var(--border-light-top);
+  border-bottom-color: var(--border-dark-bottom);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md), var(--inner-light);
+  color: var(--text-primary);
+  pointer-events: auto;
+  transform-origin: 0 0;
+  overflow: visible;   /* 改成 visible，让 uid 标签能显示在节点外部下方 */
+  display: flex;
+  flex-direction: column;
+  transition: border-color var(--dur) var(--ease),
+              box-shadow var(--dur) var(--ease),
+              background-color var(--dur) var(--ease);
+}
+
+.canvas-node:hover {
+  border-color: var(--border-strong);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, .5), var(--inner-light);
+}
+
+/* 路径上的节点：淡香槟着色，不再整块铺蓝 */
+.canvas-node.in-path {
+  border-color: rgba(244, 184, 99, .30);
+  background: rgba(244, 184, 99, .07);
+}
+
+/* 选中：香槟描边 + 一圈微光，替代原来的粗蓝边 */
+.canvas-node.selected {
+  border-color: var(--accent-line);
+  background: var(--surface-glass-2);
+  box-shadow: 0 0 0 1px rgba(244, 184, 99, .32),
+              0 0 28px rgba(244, 184, 99, .16),
+              var(--shadow-md),
+              var(--inner-light);
+}
+
+/* ========== 节点标题栏（顶栏：默认 "--"，双击编辑，按住拖动） ========== */
+.node-title-bar {
+  flex: 0 0 auto;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  background: rgba(255, 255, 255, .05);
+  border-bottom: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 13px 13px 0 0;
+  cursor: move;
+  user-select: none;
+  box-sizing: border-box;
+}
+
+/* in-path 节点顶栏随节点底色 */
+.canvas-node.in-path .node-title-bar {
+  background: transparent;
+  border-bottom-color: rgba(244, 184, 99, .18);
+}
+
+.node-title-text {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;   /* 非编辑态：mousedown 落到 bar 上启动拖动 */
+}
+
+/* 双击编辑态：标题栏光标变文本，文字框恢复可点击/选中 */
+.node-title-bar:has(.editing) {
+  cursor: text;
+}
+.node-title-text.editing {
+  pointer-events: auto;
+  cursor: text;
+  color: var(--text-primary);
+  background: rgba(0, 0, 0, .35);
+  border: 1px solid var(--accent-line);
+  border-radius: var(--radius-sm);
+  padding: 1px 6px;
+  max-width: 100%;
+  user-select: text;
+}
+
+.node-content {
+  padding: 10px 12px;
+  outline: none;
+  font: 14px/1.6 var(--font-ui);
+  color: var(--text-primary);
+  cursor: text;
+  word-break: break-word;
+  flex: 1 1 auto;
+  min-height: 0;   /* flex 子项允许收缩到内容以下；高度 = 节点高 - 28px 标题栏（height:100% 会顶破布局，已移除） */
+  box-sizing: border-box;
+  overflow-y: auto;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;  /* 让 \n 渲染成换行：对话记录每条 user/ai 各占一行；手动编辑按 Enter 也插入 \n，格式统一 */
+}
+
+/* AI 模型名前缀独立样式：香槟小字，视觉上与回复内容区分 */
+.ai-model-prefix {
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .3px;
+}
+
+/* 滚动条样式（细滚动条） */
+.node-content::-webkit-scrollbar {
+  width: 6px;
+}
+.node-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+.node-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, .18);
+  border-radius: 3px;
+}
+.node-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, .3);
+}
+
+/* 节点 uid 显示标签（路径高亮时显示在节点外部下方，纯读取检测） */
+.node-uid-label {
+  display: none;
+  position: absolute;
+  left: 0;
+  bottom: -26px;       /* 定位到节点外部正下方 */
+  padding: 2px 8px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+  background: rgba(10, 14, 24, .72);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+  line-height: 1.5;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.canvas-node.in-path .node-uid-label,
+.canvas-node.selected .node-uid-label {
+  display: block;
+}
+
+.node-resizer-bottom {
+  position: absolute;
+  bottom: -5px;
+  left: 10%;
+  width: 80%;
+  height: 8px;
+  cursor: ns-resize;
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+  pointer-events: auto;
+  z-index: 2;
+}
+
+.node-resizer-bottom::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 2px;
+  background: rgba(255, 255, 255, .28);
+  border-radius: 2px;
+}
+
+/* 右下角缩放：小手柄三角，替代原来 50px 的大灰三角 */
+.node-resizer-corner {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  cursor: nwse-resize;
+  pointer-events: auto;
+  z-index: 2;
+  border-style: solid;
+  border-width: 0 0 14px 14px;
+  border-color: transparent transparent rgba(255, 255, 255, .22) transparent;
+  opacity: .7;
+  transition: opacity var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+
+.node-resizer-corner:hover {
+  opacity: 1;
+  border-color: transparent transparent var(--accent) transparent;
+}
+
+.canvas-node:hover .node-resizer-bottom {
+  opacity: 1;
+}
+
+.canvas-node.resizing {
+  user-select: none;
+}
+
+.canvas-node.resizing .node-content {
+  cursor: ns-resize;
+}
+
+/* ========== 右键 / 节点菜单 ========== */
+#context-menu,
+#node-menu {
+  position: fixed;
+  display: none;
+  background: rgba(18, 24, 38, .94);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--border-subtle);
+  border-top-color: var(--border-light-top);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  padding: 4px 0;
+}
+
+#context-menu {
+  z-index: 20;
+  min-width: 140px;
+}
+
+#node-menu {
+  z-index: 30;
+  min-width: 150px;
+}
+
+.context-menu-item,
+.node-menu-item {
+  padding: 8px 16px;
+  cursor: pointer;
+  font: 13px/1.4 var(--font-ui);
+  color: var(--text-primary);
+  transition: background var(--dur) var(--ease);
+}
+
+.context-menu-item:hover,
+.node-menu-item:hover {
+  background: rgba(255, 255, 255, .08);
+}
+
+/* ===== 文件节点预览（render_node_visualization/render_pdf_doc_png.js） ===== */
+/* content 整体是 [[uid/文件名]] 标记的节点：不可编辑，磁盘实时映射预览 */
+.node-content.node-file-preview {
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  cursor: default;
+  background: rgba(9, 13, 22, .55);
+  position: relative;  /* 让 overlay 的 absolute 相对本节点 */
+}
+
+/* png 预览：滚轮缩放 */
+.node-file-image {
+  margin: auto;
+  max-width: 100%;
+  transform-origin: center center;
+  transition: transform .08s;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* pdf 预览：浏览器自带查看器（自带缩放/翻页），保持白底保证 PDF 正常显示 */
+.node-file-pdf {
+  width: 100%;
+  height: 100%;
+  border: none;
+  flex: 1 1 auto;
+  background: #fff;
+  pointer-events: none;  /* 事件交给 overlay 处理，避免 iframe 吞事件 */
+}
+
+/* 查看模式：overlay 隐藏，iframe 接管事件 */
+.node-file-preview.viewing .node-file-pdf {
+  pointer-events: auto;
+}
+
+/* pdf 透明事件遮罩：默认拦截 iframe 吞掉的事件，让右键/滚轮/点击冒泡到节点 */
+.node-file-overlay {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  pointer-events: auto;
+  z-index: 2;
+}
+
+.node-file-preview.viewing .node-file-overlay {
+  display: none;
+}
+
+/* "查看"按钮：默认模式下 hover 节点时显示在左上角 */
+.node-file-view-btn {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 3;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-family: var(--font-ui);
+  color: var(--on-accent);
+  background: rgba(244, 184, 99, .92);
+  border: 1px solid rgba(255, 255, 255, .35);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+}
+
+.node-file-preview:hover .node-file-view-btn {
+  opacity: 1;
+}
+
+/* 查看模式下隐藏"查看"按钮 */
+.node-file-preview.viewing .node-file-view-btn {
+  display: none;
+}
+
+/* "退出"按钮：仅查看模式下显示在左上角 */
+.node-file-exit-btn {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 4;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-family: var(--font-ui);
+  color: #fff;
+  background: rgba(229, 105, 95, .92);
+  border: 1px solid rgba(255, 255, 255, .35);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: none;
+}
+
+.node-file-preview.viewing .node-file-exit-btn {
+  display: block;
+}
+
+/* ========== 数学公式渲染（KaTeX，默认渲染态/编辑态切换） ========== */
+/* "编辑"按钮：渲染态 hover 时显示在左上角；编辑态（含空节点）隐藏 */
+.node-math-btn {
+  position: absolute;
+  top: 38px;           /* 避让 28px 标题栏 */
+  left: 6px;
+  z-index: 3;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-family: var(--font-ui);
+  color: var(--on-accent);
+  background: rgba(244, 184, 99, .92);
+  border: 1px solid rgba(255, 255, 255, .35);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: none;
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+}
+
+.canvas-node.math-mode .node-math-btn {
+  display: block;
+}
+
+.canvas-node.math-mode:hover .node-math-btn {
+  opacity: 1;
+}
+
+/* 渲染态内容：不可编辑，指针恢复默认 */
+.node-content.math-rendered {
+  cursor: default;
+}
+
+/* KaTeX 跟随节点文字颜色，避免深色底上黑字看不见 */
+.node-content .katex {
+  color: inherit;
+}
+
+/* 渲染态块级公式（\[..\] / $$..$$）：上下留白，防止贴行 */
+.node-content.math-rendered .katex-display {
+  margin: .5em 0;
+}
+
+/* doc 占位卡片（浏览器无法原生预览 doc） */
+.node-file-doc-placeholder {
+  margin: auto;
+  padding: 16px;
+  text-align: center;
+  color: var(--text-secondary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.node-file-doc-icon {
+  font-size: 40px;
+}
+
+.node-file-doc-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  word-break: break-all;
+}
+
+.node-file-doc-tip {
+  font-size: 12px;
+  color: var(--text-muted);
+}
